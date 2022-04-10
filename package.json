@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xrdavies/nft-tools.git"
+    "url": "git+https://github.com/Web3-Camp/nft-tools.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/xrdavies/nft-tools/issues"
+    "url": "https://github.com/Web3-Camp/nft-tools/issues"
   },
-  "homepage": "https://github.com/xrdavies/nft-tools#readme",
+  "homepage": "https://github.com/Web3-Camp/nft-tools#readme",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.4",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
