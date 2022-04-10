@@ -42,16 +42,17 @@ async function execute() {
   const data: any = xlsx.parse(`./meta/meta.xlsx`)[0].data;
   console.log(data);
 
-  let dataArray = [["Name", "Image", "Desc", "NFTId", "TokenId", "Assets ipfsHash", "Metadata ipfsHash"]];
+  let dataArray = [["Name", "ImageName", "Desc", "NFTId", "TokenId", "Assets ipfsHash", "Metadata ipfsHash"]];
 
-  let nftArray:any[] = [];
+  let nftArray: any[] = [];
   let timestamp = Date.now();
 
   for (let i = 1; i < data.length; i++) {
     console.log(data[i]);
 
     let name: string = data[i][0].toString();
-    let image: string = path.join(metadir, data[i][1]+'.png');
+    let image: string = data[i][1].toString();
+    let imageURL: string = path.join(metadir, data[i][1] + '.png');
     let desc: string = data[i][2] || '';
     let nftId: string = data[i][3] || '';
     let tokenId: string = data[i][4] || '';
@@ -61,6 +62,7 @@ async function execute() {
     let nft = {
       name,
       image,
+      imageURL,
       desc,
       nftId,
       tokenId,
@@ -68,9 +70,9 @@ async function execute() {
       metadataIpfsHash
     }
 
-    console.log(`${image} is `, existsSync(image));
+    if (!existsSync(imageURL)) console.error(`${imageURL} is not existed`,);
 
-    let ipfsHash = await publishToPinata(pinata, nft.image, `${name}-image-${timestamp}`);
+    let ipfsHash = await publishToPinata(pinata, nft.imageURL, `${name}-image-${timestamp}`);
     console.log("ipfs hash: ", ipfsHash);
 
     nft.assetsIpfsHash = ipfsHash;
@@ -85,7 +87,13 @@ async function execute() {
   const outManifest = `${metadir}/manifest.json`;
   writeFileSync(outManifest, JSON.stringify(nftArray, null, 4), { encoding: 'utf-8' });
 
-  dataArray.push(nftArray);
+  for (let index = 0; index < nftArray.length; index++) {
+    const nft = nftArray[index];
+    dataArray.push([nft.name, nft.image, nft.desc, nft.nftId, nft.tokenId, nft.assetsIpfsHash, nft.metadataIpfsHash]);
+  }
+
+  console.log(dataArray);
+
   const buffer = xlsx.build([{ name: "meta", data: dataArray, options: {} }], { writeOptions: { type: 'binary' } });
   writeFileSync(`./meta/metainfo.xlsx`, buffer, { encoding: 'binary' });
   console.log(green(`========== ended ==========`))
