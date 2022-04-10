@@ -79,7 +79,13 @@ async function execute() {
     nftArray.push(nft);
   }
 
+
+
   // save meta info
+  const outManifest = `${metadir}/manifest.json`;
+  writeFileSync(outManifest, JSON.stringify(nftArray, null, 4), { encoding: 'utf-8' });
+
+  dataArray.push(nftArray);
   const buffer = xlsx.build([{ name: "meta", data: dataArray, options: {} }], { writeOptions: { type: 'binary' } });
   writeFileSync(`./meta/metainfo.xlsx`, buffer, { encoding: 'binary' });
   console.log(green(`========== ended ==========`))
