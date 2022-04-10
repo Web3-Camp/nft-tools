@@ -12,3 +12,7 @@ typechain
 #Hardhat files
 cache
 artifacts
+
+
+#Project related files
+meta
