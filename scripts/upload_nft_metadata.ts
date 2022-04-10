@@ -1,10 +1,16 @@
 import { green } from 'colors';
-import config from './config';
-import { readFileSync, writeFileSync, readdirSync} from "fs";
+import constants from './config';
+import { readFileSync, writeFileSync, readdirSync, existsSync } from "fs";
 import pinataSDK from '@pinata/sdk';
+import { PinataClient } from '@pinata/sdk';
+import xlsx from "node-xlsx";
+import { config } from 'dotenv';
+import * as path from "path"
 
-const pinataApi = process.env.PINATA_API;
-const pinataKey = process.env.PINATA_KEY;
+config();
+
+const pinataApi = process.env.PINATA_API || '';
+const pinataKey = process.env.PINATA_KEY || '';
 
 const metadir = `./meta`;
 
@@ -14,14 +20,14 @@ async function initPinata() {
   return pinata;
 }
 
-async function publishToPinata (pinata, path, name) {
-    const { IpfsHash } = await pinata.pinFromFS(path, {
-        pinataMetadata: {name},
-    });
-    return IpfsHash;
+async function publishToPinata(pinata: PinataClient, path: string, name: string) {
+  const { IpfsHash } = await pinata.pinFromFS(path, {
+    pinataMetadata: { name },
+  });
+  return IpfsHash;
 }
 
-async function publishJSONToPinata(pinata, data, name) {
+async function publishJSONToPinata(pinata: PinataClient, data: JSON | any, name: string) {
   const { IpfsHash } = await pinata.pinJSONToIPFS(data, {
     pinataMetadata: { name },
   });
@@ -33,42 +39,57 @@ async function execute() {
 
   const pinata = await initPinata();
 
-  let tx, nftArray = [], manifests = [], hash;
+  const data: any = xlsx.parse(`./meta/metainfo.xlsx`)[0].data;
+  console.log(data);
+
+  let dataArray = [["Name", "ImageName", "Desc", "NFTId", "TokenId", "Assets ipfsHash", "Metadata ipfsHash"]];
+
+  let nftArray: any[] = [];
   let timestamp = Date.now();
 
-  const files = readdirSync(metadir);
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    nftArray.push(JSON.parse(readFileSync(`${metadir}/${file}`).toString()));
-    const name = file.split('.')[0];
-    console.log(green(`uploading ${name}`));
-  }
+  for (let i = 1; i < data.length; i++) {
+    console.log(data[i]);
 
-  for (let index = 0; index < nftArray.length; index++) {
-    const nft = nftArray[index];
+    let name: string = data[i][0].toString();
+    let image: string = data[i][1].toString();
+    let imageURL: string = path.join(metadir, data[i][1] + '.png');
+    let desc: string = data[i][2] || '';
+    let nftId: string = data[i][3] || '';
+    let tokenId: string = data[i][4] || '';
+    let assetsIpfsHash: string = data[i][5] || '';
+    let metadataIpfsHash: string = data[i][6] || '';
 
-    hash = await publishJSONToPinata(pinata, nft, `nft-info-${nft.name}-${timestamp}`);
+    let nft = {
+      name,
+      image,
+      imageURL,
+      desc,
+      nftId,
+      tokenId,
+      assetsIpfsHash,
+      metadataIpfsHash
+    }
 
-    manifests.push(
-      {
-        nft,
-        ipfsHash: hash,
-      }
-    )
 
-    console.log("ipfs hash: ", hash);
+    let nftMeta = {
+      name: name,
+      description: desc,
+      image: assetsIpfsHash
+    }
+
+    let ipfsHash = await publishJSONToPinata(pinata, nftMeta, `nft-info-${nft.name}-${timestamp}`);
+    console.log("ipfs hash: ", ipfsHash);
+
+    nft.metadataIpfsHash = ipfsHash;
     console.log("nft: ", nft);
+
+    nftArray.push(nft);
   }
 
   // save manifest
-  const manifest = {
-    nfts: manifests,
-    timestamp: (new Date()).getTime(),
-  };
 
   const outManifest = `${metadir}/manifest.json`;
-  const manifestJson = JSON.stringify(manifest, null, 4);
-  writeFileSync(outManifest, manifestJson, { encoding: 'utf-8' });
+  writeFileSync(outManifest, JSON.stringify(nftArray, null, 4), { encoding: 'utf-8' });
 
   console.log(green(`========== ended ==========`))
 }
