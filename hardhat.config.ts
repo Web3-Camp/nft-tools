@@ -59,14 +59,15 @@ module.exports = {
     },
     polygonTestnet: {
       // url: "https://polygon-mumbai.g.alchemy.com/v2/" + process.env.ALCHEMY_ID_PLOYGON_TESTNET,
-      url: "https://matic-testnet-archive-rpc.bwarelabs.com",
+      url: "https://matic-mumbai.chainstacklabs.com",
+      // url: "https://matic-testnet-archive-rpc.bwarelabs.com",
       accounts: [
         mnemonic()
       ]
     },
     polygonMainnet: {
-      url: "https://polygon-mainnet.g.alchemy.com/v2/" + process.env.ALCHEMY_ID_PLOYGON_MAINNET,
-      // url: "https://polygon-mainnet.infura.io/v3/" + process.env.ALCHEMY_ID_PLOYGON_MAINNET,
+      // url: "https://polygon-mainnet.g.alchemy.com/v2/" + process.env.ALCHEMY_ID_PLOYGON_MAINNET,
+      url: "https://polygon-mainnet.infura.io/v3/" + process.env.INFURA_ID,
       // url: "https://polygon-rpc.com/",
       accounts: [
         mnemonic()
