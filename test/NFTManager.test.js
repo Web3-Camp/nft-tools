@@ -36,7 +36,7 @@ describe("NFTManager contract...", function () {
     expect(proxyAddress.length).to.be.equal(42);
 
     // // 设置并获取1155代理的公会ID
-    let nftId = await nftManager.stringToBytes32(nftName);
+    let nftId =  await nftManager.stringToBytes32(nftName);
     await nftManager.setNFTId(nftId, proxyAddress);
 
     proxyAddress2 = await nftManager.nftIdToProxy(nftId);
@@ -47,7 +47,7 @@ describe("NFTManager contract...", function () {
     // alice创建一个新的1155代理
     nftName2 = "Social Wiki";
     await nftManager.connect(alice).createNFT(nftName2, "", []);
-    nftId2 = await nftManager.stringToBytes32(nftName2);
+    nftId2 =  await nftManager.stringToBytes32(nftName2);
     proxyAddress = await nftManager.ownerToProxies(alice.address, 0);
     expect(proxyAddress.length).to.be.equal(42);
     let proxy_ = await new ethers.Contract(proxyAddress, erc1155proxyJson.abi, alice);
@@ -69,7 +69,7 @@ describe("NFTManager contract...", function () {
   it("mintNewNFT", async function () {
     nftName3 = "NFT3";
     await nftManager.connect(alice).createNFT(nftName3, "", []);
-    nftId3 = await nftManager.stringToBytes32(nftName3);
+    nftId3 =  await nftManager.stringToBytes32(nftName3);
     await expect(
       nftManager.mintNewNFT(nftId3, 'ipfs://aaaa', [alice.address, bob.address])
     ).to.be.revertedWith('NFTManager: Caller is not the owner');
@@ -89,7 +89,7 @@ describe("NFTManager contract...", function () {
   it("setURI", async function () {
     nftName4 = "NFT4";
     await nftManager.connect(bob).createNFT(nftName4, "", []);
-    nftId4 = await nftManager.stringToBytes32(nftName4);
+    nftId4 =  await nftManager.stringToBytes32(nftName4);
     let proxy = await nftManager.ownerToProxies(bob.address, 0);
     let proxy_ = await new ethers.Contract(proxy, erc1155proxyJson.abi, bob);
 
@@ -104,7 +104,7 @@ describe("NFTManager contract...", function () {
   it("tokenTotalSupply", async function () {
     nftName5 = "NFT5";
     await nftManager.connect(owner).createNFT(nftName5, "ipfs://test", [alice.address, bob.address]);
-    nftId5 = await nftManager.stringToBytes32(nftName5);
+    nftId5 =  await nftManager.stringToBytes32(nftName5);
 
     proxy = await nftManager.ownerToProxies(owner.address, 0)
     proxy_ = await new ethers.Contract(proxy, erc1155proxyJson.abi, alice);
@@ -115,7 +115,7 @@ describe("NFTManager contract...", function () {
   it("tokenTotalSupplyBatch", async function () {
     nftName5 = "NFT6";
     await nftManager.connect(bob).createNFT(nftName5, "ipfs://test", [alice.address, bob.address]);
-    nftId5 = await nftManager.stringToBytes32(nftName5);
+    nftId5 =  await nftManager.stringToBytes32(nftName5);
 
     let proxy = await nftManager.ownerToProxies(bob.address, 0);
 
@@ -130,7 +130,7 @@ describe("NFTManager contract...", function () {
   it("mintExistingNFT", async () => {
     nftName7 = "NFT7";
     await nftManager.connect(bob).createNFT(nftName7, "ipfs://test", [alice.address, bob.address]);
-    nftId7 = await nftManager.stringToBytes32(nftName7);
+    nftId7 =  await nftManager.stringToBytes32(nftName7);
 
     proxy = await nftManager.ownerToProxies(bob.address, 0);
     await nftManager.connect(bob).mintExistingNFT(nftId7, 'ipfs://test1', [alice.address]);
