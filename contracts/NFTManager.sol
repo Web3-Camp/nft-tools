@@ -136,7 +136,10 @@ contract NFTManager is
 
         uint256 id = proxyToId[address(_erc1155Proxy)] + 1;
         IERC1155Proxy(_erc1155Proxy).mintAddresses(_addresses, id, 1, "");
-        IERC1155Proxy(_erc1155Proxy).setURI(id, _uri);
+        if (keccak256(bytes(_uri)) != keccak256(bytes(IERC1155Proxy(_erc1155Proxy).uri(id)))) {
+            IERC1155Proxy(_erc1155Proxy).setURI(id, _uri);
+        }
+        
         for (uint256 i = 0; i < _addresses.length; i++) {
             ownerToIds[_addresses[i]].push(id);
         }
