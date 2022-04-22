@@ -39,7 +39,7 @@ async function execute() {
 
   const pinata = await initPinata();
 
-  const data: any = xlsx.parse(`./meta/metainfo.xlsx`)[0].data;
+  const data: any = xlsx.parse(`${metadir}/metainfo.xlsx`)[0].data;
   console.log(data);
 
   let dataArray = [["Name", "ImageName", "Desc", "NFTId", "TokenId", "Assets ipfsHash", "Metadata ipfsHash"]];
@@ -52,7 +52,7 @@ async function execute() {
 
     let name: string = data[i][0].toString();
     let image: string = data[i][1].toString();
-    let imageURL: string = path.join(metadir, data[i][1] + '.png');
+    let imageURL: string = path.join(metadir, data[i][1]);
     let desc: string = data[i][2] || '';
     let nftId: string = data[i][3] || '';
     let tokenId: string = data[i][4] || '';
@@ -77,10 +77,13 @@ async function execute() {
       image: assetsIpfsHash
     }
 
+    // let metaname = image.replace('-512.png', '.json');
+    // writeFileSync(`${metadir}/json/${metaname}`, JSON.stringify(nftMeta, null, 4), { encoding: 'utf-8' });
+
     let ipfsHash = await publishJSONToPinata(pinata, nftMeta, `nft-info-${nft.name}-${timestamp}`);
     console.log("ipfs hash: ", ipfsHash);
 
-    nft.metadataIpfsHash = ipfsHash;
+    nft.metadataIpfsHash = 'ipfs://' + ipfsHash;
     console.log("nft: ", nft);
 
     nftArray.push(nft);
@@ -91,6 +94,16 @@ async function execute() {
   const outManifest = `${metadir}/manifest.json`;
   writeFileSync(outManifest, JSON.stringify(nftArray, null, 4), { encoding: 'utf-8' });
 
+
+  for (let index = 0; index < nftArray.length; index++) {
+    const nft = nftArray[index];
+    dataArray.push([nft.name, nft.image, nft.desc, nft.nftId, nft.tokenId, nft.assetsIpfsHash, nft.metadataIpfsHash]);
+  }
+
+  console.log(dataArray);
+
+  const buffer = xlsx.build([{ name: "meta", data: dataArray, options: {} }], { writeOptions: { type: 'binary' } });
+  writeFileSync(`${metadir}/metainfo.xlsx`, buffer, { encoding: 'binary' });
   console.log(green(`========== ended ==========`))
 }
 

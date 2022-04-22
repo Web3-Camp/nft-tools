@@ -52,7 +52,7 @@ async function execute() {
 
     let name: string = data[i][0].toString();
     let image: string = data[i][1].toString();
-    let imageURL: string = path.join(metadir, data[i][1] + '.png');
+    let imageURL: string = path.join(metadir, data[i][1]);
     let desc: string = data[i][2] || '';
     let nftId: string = data[i][3] || '';
     let tokenId: string = data[i][4] || '';
@@ -75,13 +75,11 @@ async function execute() {
     let ipfsHash = await publishToPinata(pinata, nft.imageURL, `${name}-image-${timestamp}`);
     console.log("ipfs hash: ", ipfsHash);
 
-    nft.assetsIpfsHash = ipfsHash;
+    nft.assetsIpfsHash = 'ipfs://' + ipfsHash;
     console.log("nft: ", nft);
 
     nftArray.push(nft);
   }
-
-
 
   // save meta info
   const outManifest = `${metadir}/manifest.json`;
