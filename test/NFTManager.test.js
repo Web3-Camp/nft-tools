@@ -7,6 +7,7 @@ describe("NFTManager contract...", function () {
   let owner
   let alice
   let bob
+  let charles
   let nftId1 = 1
   let nftId2 = 2
   let nftId3 = 3
@@ -14,7 +15,7 @@ describe("NFTManager contract...", function () {
   const erc1155proxyJson = require('../artifacts/contracts/ERC1155Proxy.sol/ERC1155Proxy.json');
 
   beforeEach(async function () {
-    [owner, alice, bob] = await ethers.getSigners()
+    [owner, alice, bob, charles] = await ethers.getSigners()
 
     const NFTManager = await ethers.getContractFactory("NFTManager");
     nftManager = await upgrades.deployProxy(NFTManager, []);
@@ -84,6 +85,40 @@ describe("NFTManager contract...", function () {
     expect(aliceIds.length).to.equal(1)
     expect(bobIds.length).to.equal(0)
     expect(ownerIds.length).to.equal(0)
+  })
+
+  it("mintAddresses", async function () {
+
+    let addresses = [alice.address, bob.address, charles.address];
+
+    nftName = "NFT1";
+    await nftManager.createNFT(nftName, "", []);
+    // let proxyAddress = await nftManager.ownerToProxies(owner.address, 0);
+    // expect(proxyAddress.length).to.be.equal(42);
+
+    let nftId =  await nftManager.stringToBytes32(nftName);
+    let proxyAddress = await nftManager.nftIdToProxy(nftId);
+    let gid = await nftManager.proxyToNftId(proxyAddress)
+
+    expect(nftId).to.be.equal(gid);
+
+    // set uri for nft.
+    await nftManager.setURI(nftId, 1, 'ipfs://aaaa');
+
+    // mint nft.
+    await nftManager.mintAddresses(nftId, 1, addresses);
+
+    let proxy = new ethers.Contract(proxyAddress, erc1155proxyJson.abi, alice);
+    await proxy.deployed();
+
+    let balanceA = await proxy.balanceOf(alice.address, 1);
+    expect(balanceA).to.be.equal(1);
+
+    let balanceB = await proxy.balanceOf(bob.address, 1);
+    expect(balanceB).to.be.equal(1);
+
+    let balanceC = await proxy.balanceOf(charles.address, 1);
+    expect(balanceC).to.be.equal(1);
   })
 
   it("setURI", async function () {

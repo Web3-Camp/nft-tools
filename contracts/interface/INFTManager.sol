@@ -26,6 +26,12 @@ interface INFTManager {
     address[] memory _addresses
   ) external;
 
+  function mintAddresses(
+    bytes32 _nftId,
+    uint256 _tokenId,
+    address[] memory _addresses
+  ) external;
+
   function setURI(
     bytes32 _nftId,
     uint256 _tokenId,

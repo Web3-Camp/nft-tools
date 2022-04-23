@@ -35,8 +35,6 @@ contract NFTManager is
         __ReentrancyGuard_init();
     }
 
-
-
     event MintNewNFT(address proxy, string uri, uint256 addressAmount);
     event CreateProxy(address proxy);
     event SetURI(address proxy, uint256 tokenId, string uri);
@@ -45,6 +43,7 @@ contract NFTManager is
         string uri,
         uint256 addressAmount
     );
+    event MintNFTs(address erc1155Proxy, uint256 tokenId, uint256 addressAmount);
 
     //-------------------------------
     //------- Modifier --------------
@@ -93,7 +92,7 @@ contract NFTManager is
         );
         bytes32 nftId = keccak256(abi.encodePacked(_name));
         nftNameToNftId[_name] = nftId;
-        
+
         address erc1155Proxy = createProxy();
         setNFTId(nftId, erc1155Proxy);
         setNFTName(_name, erc1155Proxy);
@@ -111,6 +110,7 @@ contract NFTManager is
         proxyToNftId[_erc1155Proxy] = _nftId;
         nftIdToProxy[_nftId] = _erc1155Proxy;
     }
+
     function setNFTName(string memory _name, address _erc1155Proxy)
         public
         override
@@ -134,17 +134,20 @@ contract NFTManager is
             "NFTManager: Must supply at least one address"
         );
 
-        uint256 id = proxyToId[address(_erc1155Proxy)] + 1;
-        IERC1155Proxy(_erc1155Proxy).mintAddresses(_addresses, id, 1, "");
-        if (keccak256(bytes(_uri)) != keccak256(bytes(IERC1155Proxy(_erc1155Proxy).uri(id)))) {
-            IERC1155Proxy(_erc1155Proxy).setURI(id, _uri);
-        }
-        
-        for (uint256 i = 0; i < _addresses.length; i++) {
-            ownerToIds[_addresses[i]].push(id);
+        uint256 tokenId = proxyToId[address(_erc1155Proxy)] + 1;
+        IERC1155Proxy(_erc1155Proxy).mintAddresses(_addresses, tokenId, 1, "");
+        if (
+            keccak256(bytes(_uri)) !=
+            keccak256(bytes(IERC1155Proxy(_erc1155Proxy).uri(tokenId)))
+        ) {
+            IERC1155Proxy(_erc1155Proxy).setURI(tokenId, _uri);
         }
 
-        proxyToId[address(_erc1155Proxy)] = id;
+        for (uint256 i = 0; i < _addresses.length; i++) {
+            ownerToIds[_addresses[i]].push(tokenId);
+        }
+
+        proxyToId[address(_erc1155Proxy)] = tokenId;
 
         emit MintNewNFT(address(_erc1155Proxy), _uri, _addresses.length);
     }
@@ -164,17 +167,40 @@ contract NFTManager is
             "NFTManager: Must supply at least one address"
         );
 
-        // 
-        uint256 nftId = proxyToId[address(_erc1155Proxy)];
-        require(nftId != 0, "NFTManager: Must supply a valid NFT address");
+        //
+        uint256 tokenId = proxyToId[address(_erc1155Proxy)];
+        require(tokenId != 0, "NFTManager: Must supply a valid NFT address");
 
-        IERC1155Proxy(_erc1155Proxy).mintAddresses(_addresses, nftId, 1, "");
-        IERC1155Proxy(_erc1155Proxy).setURI(nftId, _uri);
+        IERC1155Proxy(_erc1155Proxy).mintAddresses(_addresses, tokenId, 1, "");
+        IERC1155Proxy(_erc1155Proxy).setURI(tokenId, _uri);
         for (uint256 i = 0; i < _addresses.length; i++) {
-            ownerToIds[_addresses[i]].push(nftId);
+            ownerToIds[_addresses[i]].push(tokenId);
         }
 
         emit MintExistingNFT(address(_erc1155Proxy), _uri, _addresses.length);
+    }
+
+    function mintAddresses(
+        bytes32 _nftId,
+        uint256 _tokenId,
+        address[] memory _addresses
+    ) external override nonReentrant onlyProxyOwner(nftIdToProxy[_nftId]) {
+        address _erc1155Proxy = nftIdToProxy[_nftId];
+        require(
+            address(_erc1155Proxy) != address(0),
+            "NFTManager: Must supply a valid Proxy address"
+        );
+        require(
+            _addresses.length > 0,
+            "NFTManager: Must supply at least one address"
+        );
+
+        IERC1155Proxy(_erc1155Proxy).mintAddresses(_addresses, _tokenId, 1, "");
+        for (uint256 i = 0; i < _addresses.length; i++) {
+            ownerToIds[_addresses[i]].push(_tokenId);
+        }
+
+        emit MintNFTs(address(_erc1155Proxy), _tokenId, _addresses.length);
     }
 
     function setURI(
