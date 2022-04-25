@@ -98,7 +98,7 @@ async function main() {
   // await tx.wait();
   // return;
 
-  const pageSize = 150;
+  const pageSize = 100;
   for (const nftName in nftDistMap) {
     if (Object.prototype.hasOwnProperty.call(nftDistMap, nftName)) {
       const nft = nftDistMap[nftName];
