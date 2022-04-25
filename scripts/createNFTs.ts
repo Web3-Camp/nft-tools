@@ -14,6 +14,7 @@ import { PinataClient } from '@pinata/sdk';
 import xlsx from "node-xlsx";
 import { config } from 'dotenv';
 import * as path from "path"
+import ts from "typescript";
 
 config();
 
@@ -40,19 +41,34 @@ async function main() {
   let nftArray: any[] = [];
   let timestamp = Date.now();
 
+  console.log(contracts.NFTManager);
+
   const NFTManager = await ethers.getContractAt("NFTManager", contracts.NFTManager);
 
-  console.log('Create NFT');
+  await NFTManager.deployed();
+
+  console.log('Begin to create NFTs...');
   let nftName = 'xxxxx';
-  // await NFTManager.createNFT(nftName, "", []);
   let nftId = await NFTManager.stringToBytes32(nftName);
   let proxyAddress = await NFTManager.nftIdToProxy(nftId);
   console.log('proxyAddress: ', proxyAddress);
+
+  if (proxyAddress === '0x0000000000000000000000000000000000000000') {
+    console.log('The NFT does not exist. Create it.');
+    let tx = await NFTManager.createNFT(nftName, "", []);
+    await tx.wait();
+    console.log('Create NFT success');
+
+    proxyAddress = await NFTManager.nftIdToProxy(nftId);
+    console.log('proxyAddress: ', proxyAddress);
+  }
 
   let ownerAddress = await NFTManager.proxyToOwner(proxyAddress);
   console.log("ownerAddress: ", ownerAddress);
 
 
+  // create one by one
+  /*
   for (let i = 0; i < data.length; i++) {
     // console.log(data[i]);
 
@@ -66,6 +82,7 @@ async function main() {
 
     console.log(nftId, i, metadataIpfsHash);
     let tx = await NFTManager.setURI(nftId, i, metadataIpfsHash);
+    tx.wait();
 
     let tokenId = i;
 
@@ -80,6 +97,47 @@ async function main() {
     }
 
     nftArray.push(nft);
+  }
+  */
+
+  // batch create
+  let pageSize = 200;
+  for (let i = 0; i < data.length; i += pageSize) {
+    console.log(`batch create NFTs, batch number ${i}`);;
+    let page: any[] = data.slice(i, i + pageSize);
+
+    let tokenIds: any[] = [];
+    let URIs:any[] = [];
+
+    page.forEach((item, index) => {
+      let name: string = item[0].toString();
+      let image: string = item[1].toString();
+      let desc: string = item[2] || '';
+      // let nftId: string = item[3] || '';
+      // let tokenId: string = item[4] || '';
+      let assetsIpfsHash: string = item[5] || '';
+      let metadataIpfsHash: string = item[6] || '';
+
+      let tokenId = i + index; // tokenId is the index of the NFT in the NFTManager.
+
+      tokenIds.push(tokenId);
+      URIs.push(metadataIpfsHash);
+
+      let nft = {
+        name,
+        image,
+        desc,
+        nftId,
+        tokenId,
+        assetsIpfsHash,
+        metadataIpfsHash
+      }
+  
+      nftArray.push(nft);
+    });
+
+    let tx = await NFTManager.setURIs(nftId, tokenIds, URIs);
+    tx.wait();    
   }
 
   for (let index = 0; index < nftArray.length; index++) {

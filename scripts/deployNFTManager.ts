@@ -19,7 +19,7 @@ async function main() {
 
   const result = await upgrades.deployProxy(Contract, []);
 
-  console.log("Contract address:", result.address);
+  console.log("NFTManager address:", result.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

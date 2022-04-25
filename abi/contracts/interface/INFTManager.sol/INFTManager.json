@@ -111,6 +111,29 @@
         "type": "bytes32"
       },
       {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_addresses",
+        "type": "address[]"
+      }
+    ],
+    "name": "mintAddresses",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_nftId",
+        "type": "bytes32"
+      },
+      {
         "internalType": "string",
         "name": "_uri",
         "type": "string"
@@ -204,6 +227,29 @@
       }
     ],
     "name": "setURI",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_nftId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_tokenIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_uris",
+        "type": "string[]"
+      }
+    ],
+    "name": "setURIs",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

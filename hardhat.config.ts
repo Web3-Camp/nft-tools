@@ -63,7 +63,9 @@ module.exports = {
       // url: "https://matic-testnet-archive-rpc.bwarelabs.com",
       accounts: [
         mnemonic()
-      ]
+      ],
+      gas: 12000000,
+      gasPrice: 8000000000
     },
     polygonMainnet: {
       // url: "https://polygon-mainnet.g.alchemy.com/v2/" + process.env.ALCHEMY_ID_PLOYGON_MAINNET,

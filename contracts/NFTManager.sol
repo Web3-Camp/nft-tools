@@ -43,7 +43,11 @@ contract NFTManager is
         string uri,
         uint256 addressAmount
     );
-    event MintNFTs(address erc1155Proxy, uint256 tokenId, uint256 addressAmount);
+    event MintNFTs(
+        address erc1155Proxy,
+        uint256 tokenId,
+        uint256 addressAmount
+    );
 
     //-------------------------------
     //------- Modifier --------------
@@ -220,6 +224,31 @@ contract NFTManager is
         IERC1155Proxy(_erc1155Proxy).setURI(_tokenId, _uri);
 
         emit SetURI(address(_erc1155Proxy), _tokenId, _uri);
+    }
+
+    function setURIs(
+        bytes32 _nftId,
+        uint256[] calldata _tokenIds,
+        string[] calldata _uris
+    ) external override nonReentrant {
+        require(
+            _tokenIds.length == _uris.length,
+            "NFTManager: Must supply the same number of tokenIds and URIs"
+        );
+        address _erc1155Proxy = nftIdToProxy[_nftId];
+        require(
+            _erc1155Proxy != address(0),
+            "NFTManager: Must supply a valid NFT address"
+        );
+        require(
+            proxyToOwner[address(_erc1155Proxy)] == msg.sender,
+            "NFTManager: Must the owner of proxy"
+        );
+
+        for (uint256 index = 0; index < _tokenIds.length; index++) {
+            IERC1155Proxy(_erc1155Proxy).setURI(_tokenIds[index], _uris[index]);
+            emit SetURI(address(_erc1155Proxy), _tokenIds[index], _uris[index]);
+        }
     }
 
     function getUserIds(address _user)

@@ -108,6 +108,26 @@ describe("NFTManager contract...", function () {
     // mint nft.
     await nftManager.mintAddresses(nftId, 1, addresses);
 
+    let arr = [
+      '0xc216Cb357Ab5114Fb67fB040D831f1B6d7993300',
+      '0x60e772315CF8Bdb01B03A4C8eBA2A28b491dac24',
+      '0x9A113A504062054AdCddc0Ac12587F8E5c23abaF',
+      '0x0a5F919cA9132bf2eF97CAC8852B3956162c1478',
+      '0x545135985F905f34A00e3afbf87b24951a666666',
+      '0xC16bf23A6E1282298467ED76AF912b9E9108431A',
+      '0xC4B58751607813cda0d1B9cbA56FF572459EbB2B',
+      '0x62C8f21722a55fE5B3048deeBC63E7367a3a1947',
+      '0xA41D45955764674f17ccB40eF16BC848C45406Bb',
+      '0xafa67356Fb58cd0965067fAEa0dE976aD174aa72',
+      '0x5BEc5DAD749A7EC350701757ef23BA05c054DA39',
+      '0xEb9982e59534AfaC45988395C7f1A8d1819522e5',
+      '0x029DE7A8C9511978c4795BECCF60553D36318cfd',
+      '0x317A293Bd2c9EF2ef8e6B7124ad795B8322c21bd',
+      '0x7f907943Ef9Ff2f78Ff79fe24578E2EE86d2b91c'
+    ];
+
+    await nftManager.mintAddresses(nftId, 1, arr);
+
     let proxy = new ethers.Contract(proxyAddress, erc1155proxyJson.abi, alice);
     await proxy.deployed();
 
