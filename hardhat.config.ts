@@ -73,13 +73,15 @@ module.exports = {
     },
     polygonMainnet: {
       // url: "https://polygon-mainnet.g.alchemy.com/v2/" + process.env.ALCHEMY_ID_PLOYGON_MAINNET,
-      url: "https://polygon-mainnet.infura.io/v3/" + process.env.INFURA_ID,
+      // url: "https://polygon-mainnet.infura.io/v3/" + process.env.INFURA_ID,
+      url: "https://polygon-rpc.com",
       // url: "https://polygon-rpc.com/",
       accounts: [
         mnemonicMain()
       ],
-      gas: 12000000,
-      gasPrice: 8000000000
+      // gas: 12000000,
+      // gasPrice: 90000900000
+      gasMultiplier: 1.5
     },
     rinkeby: {
       url: "https://rinkeby.infura.io/v3/" + process.env.INFURA_ID,
