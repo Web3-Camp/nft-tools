@@ -1,4 +1,4 @@
 export default {
     ERC1155Proxy: '',
-    NFTManager: '0x71eBD6638A52e470278f54fcE65BD3d906D5B73b',
+    NFTManager: '0xD0D3f151b62EF0FFC8dbb7858C0352f15e3d99a2',
 }
