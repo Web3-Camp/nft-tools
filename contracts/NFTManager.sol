@@ -86,7 +86,7 @@ contract NFTManager is
     //-------------------------------
 
     function version() external pure returns (string memory) {
-        return "1.1.0";
+        return "1.0.0";
     }
 
     function createNFT(

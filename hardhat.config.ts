@@ -9,6 +9,10 @@ function mnemonic() {
   return process.env.TESTNET_PRIVATE_KEY
 }
 
+function mnemonicMain() {
+  return process.env.MAINNET_PRIVATE_KEY
+}
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
@@ -72,8 +76,10 @@ module.exports = {
       url: "https://polygon-mainnet.infura.io/v3/" + process.env.INFURA_ID,
       // url: "https://polygon-rpc.com/",
       accounts: [
-        mnemonic()
-      ]
+        mnemonicMain()
+      ],
+      gas: 12000000,
+      gasPrice: 8000000000
     },
     rinkeby: {
       url: "https://rinkeby.infura.io/v3/" + process.env.INFURA_ID,
