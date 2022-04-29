@@ -23,14 +23,17 @@ console.log('contracts: ', contracts)
 const metadir = `./meta`; // the information of the NFTs located.
 
 async function main() {
+  // initialize contracts and deployer
   const [deployer] = await ethers.getSigners();
-
-  console.log(
-    "Operating contracts with the account:",
-    deployer.address
-  );
-
+  console.log("Operating contracts with the account:", deployer.address);
   console.log("Account balance:", (await deployer.getBalance()).toString());
+  const NFTManager = await ethers.getContractAt("NFTManager", contracts.NFTManager);
+
+  // Test code
+  // const nftId = await NFTManager.stringToBytes32('xxxxxx');
+  // let tx = await NFTManager.mintAddresses(nftId, 0, ["0x33d3fF69E5967b3E6Cdc95206F1AbdF0709406F7"]);
+  // await tx.wait();
+  // return;
 
   const sheets: any[] = xlsx.parse(`${metadir}/dist.xlsx`);
   // console.log('sheet 1: ', sheets[0]);
@@ -38,8 +41,6 @@ async function main() {
   // console.log('sheet 2: ', sheets[1]);
 
   // console.log(sheets[0].data[0]);
-
-  const NFTManager = await ethers.getContractAt("NFTManager", contracts.NFTManager);
 
   let nftDistMap = {}; //{ nftName: {nftId: []}}
 
@@ -91,12 +92,6 @@ async function main() {
     }
   }
   console.log('nftDistMap: ', nftDistMap);
-
-  // Test code
-  // const nftId = await NFTManager.stringToBytes32('xxxxx');
-  // let tx = await NFTManager.mintAddresses(nftId, 0, ["0x33d3fF69E5967b3E6Cdc95206F1AbdF0709406F7"]);
-  // await tx.wait();
-  // return;
 
   const pageSize = 100;
   for (const nftName in nftDistMap) {
