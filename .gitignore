@@ -15,4 +15,4 @@ artifacts
 
 
 #Project related files
-meta
+.meta*
